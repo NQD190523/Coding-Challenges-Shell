@@ -2,6 +2,9 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Scanner;
 
+import commands.CdCommand;
+import commands.ExportCommand;
+import commands.HandlePipeLine;
 import commands.LsCommand;
 import commands.PwdCommand;
 
@@ -39,20 +42,36 @@ public class App {
             } else if (command.equalsIgnoreCase("pwd")) {
                 PwdCommand.printCurrentDirectory();
             //print file content using external command
-            } else if (command.contains("cat")) {
+            // } else if (command.contains("cat")) {
+            //     String[] request = command.split(" ");
+            //     if (request.length == 2) {
+            //         Process pb = new ProcessBuilder( "powershell.exe","cat", request[1].toString()).start();
+            //         pb.waitFor();
+            //          try (BufferedReader reader = new BufferedReader(new InputStreamReader(pb.getInputStream()))) {
+            //             String line;
+            //             while ((line = reader.readLine()) != null) {
+            //                 System.out.println(line);
+            //             }
+            //         }
+            //         pb.destroy();
+            //     } else {
+            //         System.out.println("Invalid command. Usage: cat <filename>");
+            //     }
+            } else if(command.contains("|")){
+                HandlePipeLine.handlePipeLine(command);
+            } else if(command.contains("cd")){
                 String[] request = command.split(" ");
                 if (request.length == 2) {
-                    Process pb = new ProcessBuilder( "powershell.exe","cat", request[1].toString()).start();
-                    pb.waitFor();
-                     try (BufferedReader reader = new BufferedReader(new InputStreamReader(pb.getInputStream()))) {
-                        String line;
-                        while ((line = reader.readLine()) != null) {
-                            System.out.println(line);
-                        }
-                    }
-                    pb.destroy();
+                    CdCommand.changeDirectory(request[1]);
                 } else {
-                    System.out.println("Invalid command. Usage: cat <filename>");
+                    System.out.println("Invalid command. Usage: cd <directory>");
+                }
+            } else if(command.contains("export")){
+                String[] request = command.split(" ");
+                if (request.length == 3) {
+                    ExportCommand.exportVariable(request[1], request[2]);
+                } else {
+                    System.out.println("Invalid command. Usage: export <variable_name> <variable_value>");
                 }
             } else {
                 System.out.println("No such file or directory (os error 2)");
