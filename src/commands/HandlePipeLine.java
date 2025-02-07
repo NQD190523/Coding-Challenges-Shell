@@ -15,10 +15,11 @@ public class HandlePipeLine {
         List<ProcessBuilder> builders = new ArrayList<>();
         
         for(String command : commandList){
-            String[] commandParts = command.trim().split("\\s+");
-            builders.add(new ProcessBuilder(commandParts));
+            String trimmedCommand = command.trim();
+            // Format command correctly for PowerShell execution
+            String[] newCommand = {"powershell.exe", "-Command", trimmedCommand};
+            builders.add(new ProcessBuilder(newCommand));
         }
-
         try {
             List<Process> processes =  ProcessBuilder.startPipeline(builders);
             Process lastProcess = processes.get(processes.size() - 1);
