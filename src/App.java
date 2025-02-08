@@ -6,6 +6,7 @@ import java.util.Scanner;
 import commands.CatCommand;
 import commands.CdCommand;
 import commands.ExportCommand;
+import commands.HandlePipeLine;
 import commands.LsCommand;
 import commands.PwdCommand;
 
@@ -41,6 +42,12 @@ public class App {
                 System.out.println("Exiting shellCC. Goodbye!");
                 break;
             }
+
+            if(command.contains("|")){
+                HandlePipeLine.handlePipeLine(command);
+                continue;
+            }
+
             String tokens[] = command.split("\\s+");
             String commandType = tokens[0];
             String[] arguements = Arrays.copyOfRange(tokens, 1, tokens.length);
@@ -59,7 +66,7 @@ public class App {
                         ExportCommand.exportVariable(arguements[0], arguements[1]);
                         break;
                     case "cat":
-                        CatCommand.printFileContent(currentDirectory, commandType);
+                        CatCommand.printFileContent(currentDirectory, arguements);
                     default:
                         break;
                 } 

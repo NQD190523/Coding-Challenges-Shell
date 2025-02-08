@@ -1,41 +1,36 @@
 package commands;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 
 public class HandlePipeLine {
 
     public static void handlePipeLine(String commands) {
+
+        // Get the current working directory
+        File currentDir = new File(System.getProperty("user.dir"));
         
-        String[] commandList = commands.split("\\|");
-        List<ProcessBuilder> builders = new ArrayList<>();
+        String fullCommand = "powershell.exe -Command  \"" + commands + "\"";
+
+        System.out.println("Executing: " + fullCommand);
+
+        ProcessBuilder builder = new ProcessBuilder("powershell.exe", "-Command", commands);
+
+         // Set the working directory for the process
+         builder.directory(currentDir);
         
-        for(String command : commandList){
-            String trimmedCommand = command.trim();
-            // Format command correctly for PowerShell execution
-            String[] newCommand = {"powershell.exe", "-Command", trimmedCommand};
-            builders.add(new ProcessBuilder(newCommand));
-        }
+         builder.redirectErrorStream(true);
         try {
-            List<Process> processes =  ProcessBuilder.startPipeline(builders);
-            Process lastProcess = processes.get(processes.size() - 1);
-
-            try(InputStream inputStream = lastProcess.getInputStream()) {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-
+            Process process =  builder.start();
+            
+                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
                 String line;
                 while((line = reader.readLine()) !=null) {
                     System.out.println(line);
                 }
-            }
-            
-            for(Process process : processes) {
                 process.waitFor();
-            }
         } catch (IOException | InterruptedException e) {
             System.out.println("Error: " + e.getMessage());
         }
