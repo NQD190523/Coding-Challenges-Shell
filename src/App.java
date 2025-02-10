@@ -5,6 +5,7 @@ import commands.CatCommand;
 import commands.CdCommand;
 import commands.ExportCommand;
 import commands.HandlePipeLine;
+import commands.HistoryCommand;
 import commands.LsCommand;
 import commands.PwdCommand;
 
@@ -29,14 +30,17 @@ public class App {
 
         // Main loop
         while(running){
+            HistoryCommand.loadHistory();
             System.out.print("shellCC> ");
             String command = scanner.nextLine().trim();
+            HistoryCommand.addToHistory(command);
             // blank input handle
             if(command.isEmpty()){
                 continue;
             }
             //exit command
             if(command.equalsIgnoreCase("exit")){
+                HistoryCommand.saveHistoryCommand();
                 System.out.println("Exiting shellCC. Goodbye!");
                 break;
             }
@@ -65,6 +69,8 @@ public class App {
                         break;
                     case "cat":
                         CatCommand.printFileContent(currentDirectory, arguements);
+                    case "history":
+                        HistoryCommand.printHistoryCommand();
                     default:
                         break;
                 } 
